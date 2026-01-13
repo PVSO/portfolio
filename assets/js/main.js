@@ -150,35 +150,35 @@
   /**
    * Init isotope layout and filters
    */
-  document.querySelectorAll('.isotope-layout').forEach(function(isotopeItem) {
-    let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
-    let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
-    let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
+  // document.querySelectorAll('.isotope-layout').forEach(function(isotopeItem) {
+  //   let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
+  //   let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
+  //   let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
 
-    let initIsotope;
-    imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
-      initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
-        itemSelector: '.isotope-item',
-        layoutMode: layout,
-        filter: filter,
-        sortBy: sort
-      });
-    });
+  //   let initIsotope;
+  //   imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
+  //     initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
+  //       itemSelector: '.isotope-item',
+  //       layoutMode: layout,
+  //       filter: filter,
+  //       sortBy: sort
+  //     });
+  //   });
 
-    isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
-      filters.addEventListener('click', function() {
-        isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
-        this.classList.add('filter-active');
-        initIsotope.arrange({
-          filter: this.getAttribute('data-filter')
-        });
-        if (typeof aosInit === 'function') {
-          aosInit();
-        }
-      }, false);
-    });
+  //   isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
+  //     filters.addEventListener('click', function() {
+  //       isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
+  //       this.classList.add('filter-active');
+  //       initIsotope.arrange({
+  //         filter: this.getAttribute('data-filter')
+  //       });
+  //       if (typeof aosInit === 'function') {
+  //         aosInit();
+  //       }
+  //     }, false);
+  //   });
 
-  });
+  // });
 
   /**
    * Frequently Asked Questions Toggle
@@ -249,3 +249,72 @@
   document.addEventListener('scroll', navmenuScrollspy);
 
 })();
+
+
+/** 
+ Init pagination projects portfolio
+*/
+
+document.addEventListener('DOMContentLoaded', function() {
+  const itemsPerPage = 6;
+  let currentPage = 1;
+
+  // Seleciona o container e os itens
+  const container = document.querySelector('.isotope-container');
+  if (!container) return;
+
+  // Inicializa o Isotope manualmente
+  let iso = new Isotope(container, {
+    itemSelector: '.portfolio-item',
+    layoutMode: 'masonry',
+    percentPosition: true
+  });
+
+  const items = container.querySelectorAll('.portfolio-item');
+  const btnNext = document.getElementById('nextPage');
+  const btnPrev = document.getElementById('prevPage');
+  const pageIndicator = document.getElementById('pageInfo');
+
+  function updatePagination() {
+    const totalPages = Math.ceil(items.length / itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    // A mágica: O Isotope filtra quem aparece baseado no index
+    iso.arrange({
+      filter: function(itemElem) {
+        // Encontra o índice do elemento atual dentro da lista original
+        const index = Array.from(items).indexOf(itemElem);
+        return index >= start && index < end;
+      }
+    });
+
+    // Atualiza a interface
+    if (pageIndicator) pageIndicator.innerText = `Página ${currentPage} de ${totalPages}`;
+    if (btnPrev) btnPrev.disabled = (currentPage === 1);
+    if (btnNext) btnNext.disabled = (currentPage === totalPages || totalPages === 0);
+    
+    // Rola para o topo da seção para o usuário ver os novos itens
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Eventos de Clique
+  if (btnNext) {
+    btnNext.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentPage++;
+      updatePagination();
+    });
+  }
+
+  if (btnPrev) {
+    btnPrev.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentPage--;
+      updatePagination();
+    });
+  }
+
+  // Executa a primeira vez
+  updatePagination();
+});
